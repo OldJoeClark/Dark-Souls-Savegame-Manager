@@ -352,6 +352,8 @@ namespace SaveGameFiles
 
     private void comboSelectedGame_SelectedIndexChanged(object sender, EventArgs e)
     {
+      radioSave.Checked = true;
+
       InitializeByGame(comboSelectedGame.Text);
     }
   }
