@@ -26,50 +26,48 @@ namespace SaveGameFiles
       InitializeComponent();
 
       CListHandler.currentGame = "Dark Souls III";
-
       CListHandler.Initialize(currentDocuments, currentUserName);
-      CListHandler.SetDatFile("_DARKSOULSIII_GameFileInfo.xml");
-      CListHandler.LoadGameFileInfo();      
-      
-      InitializeByGame("Dark Souls III");
 
-      dlgSelectSource.InitialDirectory = CListHandler.gfi.DS3GameFilePath;
-      //dlgSelectDestination.InitialDirectory = CListHandler.gfi.DS3SaveGamePath;
+      CListHandler.ReadSaveGamePaths();
 
-      txtSourceFolder.Text = CListHandler.gfi.DS3GameFilePath;
-      txtDestinationFolder.Text = CListHandler.gfi.DS3SaveGamePath;
+      InitializeByGame(CListHandler.currentGame);
+
+      dlgSelectSource.InitialDirectory = CListHandler.sgp.DS3GameFilePath;
+
+      txtSourceFolder.Text = CListHandler.sgp.DS3GameFilePath;
+      txtDestinationFolder.Text = CListHandler.sgp.DS3SaveGamePath;
     }
 
     private string getSelectedGameFilePath(string currentGame)
     {
-      if (comboSelectedGame.Text == "Dark Souls")
+      if (comboSelectedGame.Text == "Dark Souls I")
       {
-        return CListHandler.gfi.DS1GameFilePath;
+        return CListHandler.sgp.DS1GameFilePath;
       }
       if (comboSelectedGame.Text == "Dark Souls II")
       {
-        return CListHandler.gfi.DS2GameFilePath;
+        return CListHandler.sgp.DS2GameFilePath;
       }
       if (comboSelectedGame.Text == "Dark Souls III")
       {
-        return CListHandler.gfi.DS3GameFilePath;
+        return CListHandler.sgp.DS3GameFilePath;
       }
       return "";
     }
 
     private string getSelectedSaveGamePath(string currentGame)
     {
-      if (comboSelectedGame.Text == "Dark Souls")
+      if (comboSelectedGame.Text == "Dark Souls I")
       {
-        return CListHandler.gfi.DS1SaveGamePath;
+        return CListHandler.sgp.DS1SaveGamePath;
       }
       if (comboSelectedGame.Text == "Dark Souls II")
       {
-        return CListHandler.gfi.DS2SaveGamePath;
+        return CListHandler.sgp.DS2SaveGamePath;
       }
       if (comboSelectedGame.Text == "Dark Souls III")
       {
-        return CListHandler.gfi.DS3SaveGamePath;
+        return CListHandler.sgp.DS3SaveGamePath;
       }
       return "";
     }
@@ -92,15 +90,15 @@ namespace SaveGameFiles
 
         if (comboSelectedGame.Text == "Dark Souls")
         {
-          CListHandler.gfi.DS1GameFilePath = gameFolder;
+          CListHandler.sgp.DS1GameFilePath = gameFolder;
         }
         if (comboSelectedGame.Text == "Dark Souls II")
         {
-          CListHandler.gfi.DS2GameFilePath = gameFolder;
+          CListHandler.sgp.DS2GameFilePath = gameFolder;
         }
         if (comboSelectedGame.Text == "Dark Souls III")
         {
-          CListHandler.gfi.DS3GameFilePath = gameFolder;
+          CListHandler.sgp.DS3GameFilePath = gameFolder;
         }
 
         txtSourceFolder.Text = gameFolder;
@@ -117,20 +115,23 @@ namespace SaveGameFiles
       {
         if (comboSelectedGame.Text == "Dark Souls")
         {
-          CListHandler.gfi.DS1SaveGamePath = d.SelectedPath;
+          CListHandler.sgp.DS1SaveGamePath = d.SelectedPath;
         }
         if (comboSelectedGame.Text == "Dark Souls II")
         {
-          CListHandler.gfi.DS2SaveGamePath = d.SelectedPath;
+          CListHandler.sgp.DS2SaveGamePath = d.SelectedPath;
         }
         if (comboSelectedGame.Text == "Dark Souls III")
         {
-          CListHandler.gfi.DS3SaveGamePath = d.SelectedPath;
+          CListHandler.sgp.DS3SaveGamePath = d.SelectedPath;
         }
+        CListHandler.UpdateSaveGamePaths();
+
         txtDestinationFolder.Text = d.SelectedPath;
 
         CListHandler.SetDatFile(GetDatFileBaseName(comboSelectedGame.Text));
-        CListHandler.Save();
+        CListHandler.SetActiveSaveLocation(d.SelectedPath);
+        CListHandler.Load();
         updateFileLists(d.SelectedPath);
       }
     }
@@ -169,7 +170,6 @@ namespace SaveGameFiles
       {
         radioRestore.Checked = false;
         dlgSelectSource.InitialDirectory = SourceSaves;
-        //dlgSelectDestination.InitialDirectory = BackupSaves;
 
         txtSourceFile.Text = DarkSoulsSaveFile;
         txtDestinationFile.Text = "";
@@ -181,7 +181,6 @@ namespace SaveGameFiles
       {
         radioRestore.Checked = true;
         dlgSelectSource.InitialDirectory = BackupSaves;
-        //dlgSelectDestination.InitialDirectory = SourceSaves;
 
         txtSourceFile.Text = "";
         txtDestinationFile.Text = DarkSoulsSaveFile;
@@ -199,7 +198,6 @@ namespace SaveGameFiles
       {
         radioSave.Checked = false;
         dlgSelectSource.InitialDirectory = BackupSaves;
-        //dlgSelectDestination.InitialDirectory = SourceSaves;
 
         txtSourceFile.Text = "";
         txtDestinationFile.Text = DarkSoulsSaveFile;
@@ -211,7 +209,6 @@ namespace SaveGameFiles
       {
         radioSave.Checked = true;
         dlgSelectSource.InitialDirectory = SourceSaves;
-        //dlgSelectDestination.InitialDirectory = BackupSaves;
 
         txtSourceFile.Text = DarkSoulsSaveFile;
         txtDestinationFile.Text = "";
@@ -230,14 +227,6 @@ namespace SaveGameFiles
 
       txtSourceFile.Text = fullPath.Substring(lastSlash + 1);
     }
-
-    //private void dlgSelectDestination_FileOk(object sender, CancelEventArgs e)
-    //{
-    //  string fullPath = dlgSelectDestination.FileName;
-    //  int lastSlash = fullPath.LastIndexOf('\\');
-
-    //  txtDestinationFile.Text = fullPath.Substring(lastSlash + 1);
-    //}
 
     private void listSourceFiles_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -313,7 +302,6 @@ namespace SaveGameFiles
 
             updateInfo();
             updateFileLists(txtDestinationFolder.Text);
-            //CListHandler.Save();
           }
         }
       }
@@ -368,8 +356,8 @@ namespace SaveGameFiles
 
       if (currentGame == "Dark Souls I")
       {
-        SourceSaves = CListHandler.gfi.DS1GameFilePath;
-        BackupSaves = CListHandler.gfi.DS1SaveGamePath;
+        SourceSaves = CListHandler.sgp.DS1GameFilePath;
+        BackupSaves = CListHandler.sgp.DS1SaveGamePath;
         DarkSoulsSaveFile = "draks0005.sl2";
 
         if (!System.IO.File.Exists(SourceSaves + "\\" + DarkSoulsSaveFile))
@@ -383,8 +371,8 @@ namespace SaveGameFiles
       }
       if (currentGame == "Dark Souls II")
       {
-        SourceSaves = CListHandler.gfi.DS2GameFilePath;
-        BackupSaves = CListHandler.gfi.DS2SaveGamePath;
+        SourceSaves = CListHandler.sgp.DS2GameFilePath;
+        BackupSaves = CListHandler.sgp.DS2SaveGamePath;
         DarkSoulsSaveFile = "DARKSII0000.sl2";
 
         if (!System.IO.File.Exists(SourceSaves + "\\" + DarkSoulsSaveFile))
@@ -394,15 +382,15 @@ namespace SaveGameFiles
           SourceSaves += subDir1[0].Name;
         }
 
-        CListHandler.gfi.DS2GameFilePath = SourceSaves;
+        CListHandler.sgp.DS2GameFilePath = SourceSaves;
         CListHandler.SetDatFile("_DARKSOULSII_GameFileInfo.xml");
       }
       //C:\Users\us\AppData\Roaming\DarkSoulsIII\0110000103a96006
 
       if (currentGame == "Dark Souls III")
       {
-        SourceSaves = CListHandler.gfi.DS3GameFilePath;
-        BackupSaves = CListHandler.gfi.DS3SaveGamePath;
+        SourceSaves = CListHandler.sgp.DS3GameFilePath;
+        BackupSaves = CListHandler.sgp.DS3SaveGamePath;
         DarkSoulsSaveFile = "DS30000.sl2";
 
         if (!System.IO.File.Exists(SourceSaves + "\\" + DarkSoulsSaveFile))
@@ -412,25 +400,21 @@ namespace SaveGameFiles
           SourceSaves += subDir1[0].Name;
         }
 
-        CListHandler.gfi.DS3GameFilePath = SourceSaves;
+        CListHandler.sgp.DS3GameFilePath = SourceSaves;
         CListHandler.SetDatFile("_DARKSOULSIII_GameFileInfo.xml");
       }
 
-
       CListHandler.currentGame = currentGame;
       CListHandler.ValidateFolder(BackupSaves);
+      CListHandler.SetActiveSaveLocation(BackupSaves);
       CListHandler.Load();
       CListHandler.SetGameData(currentGame, SourceSaves, BackupSaves);
       CListHandler.Save();
 
       dlgSelectSource.InitialDirectory = SourceSaves;
-      //dlgSelectDestination.InitialDirectory = BackupSaves;
 
       txtSourceFolder.Text = SourceSaves;
       txtDestinationFolder.Text = BackupSaves;
-
-      CListHandler.ClearList();
-      CListHandler.Load();
 
       txtSourceFile.Text = DarkSoulsSaveFile;
       updateFileLists(BackupSaves);
@@ -446,15 +430,15 @@ namespace SaveGameFiles
     {
       if (currentGame == "Dark Souls I")
       {
-        return "\\_DARKSOULS_GameFileInfo.xml";
+        return "_DARKSOULS_GameFileInfo.xml";
       }
       if (currentGame == "Dark Souls II")
       {
-        return "\\_DARKSOULSII_GameFileInfo.xml";
+        return "_DARKSOULSII_GameFileInfo.xml";
       }
       if (currentGame == "Dark Souls III")
       {
-        return "\\_DARKSOULSIII_GameFileInfo.xml";
+        return "_DARKSOULSIII_GameFileInfo.xml";
       }
       return "";
     }

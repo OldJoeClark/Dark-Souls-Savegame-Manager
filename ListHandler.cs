@@ -11,6 +11,7 @@ using SaveGameFiles;
 public class CListHandler
 {
   public static string currentGame;
+  public static string activeSaveLoc = "Not Set";
 
   [Serializable]
   public class SaveInformation
@@ -20,9 +21,10 @@ public class CListHandler
   }
 
   public static string datFile = "_DARKSOULSIII_GameFileInfo.xml";
+  public static List<SaveInformation> siList;
 
   [Serializable]
-  public class GameFileInfo
+  public class SaveGamePaths
   {
     public string DS1GameFilePath = "";
     public string DS1SaveGamePath = "";
@@ -32,14 +34,13 @@ public class CListHandler
 
     public string DS3GameFilePath = "";
     public string DS3SaveGamePath = "";
-
-    public List<SaveInformation> siList;
   }
+
+  public static SaveGamePaths sgp = new SaveGamePaths();
 
   public static string currentDocuments;
   public static string currentUserName;
 
-  public static GameFileInfo gfi = new GameFileInfo();
 
   public static void Initialize(string docsPath, string user)
   {
@@ -47,8 +48,14 @@ public class CListHandler
     currentUserName = user;
   }
 
+  public static void SetActiveSaveLocation(string s)
+  {
+    activeSaveLoc = s;
+  }
+
   public static void SetDatFile(string f)
   {
+    //MessageBox.Show("CListHandler:SetDatFile -- activeSaveLoc: " + activeSaveLoc);
     datFile = f;
   }
 
@@ -72,24 +79,24 @@ public class CListHandler
   {
     if (game == "Dark Souls I")
     {
-      gfi.DS1GameFilePath = gameLoc;
-      gfi.DS1SaveGamePath = saveLoc;
+      sgp.DS1GameFilePath = gameLoc;
+      sgp.DS1SaveGamePath = saveLoc;
     }
     if (game == "Dark Souls II")
     {
-      gfi.DS2GameFilePath = gameLoc;
-      gfi.DS2SaveGamePath = saveLoc;
+      sgp.DS2GameFilePath = gameLoc;
+      sgp.DS2SaveGamePath = saveLoc;
     }
     if (game == "Dark Souls III")
     {
-      gfi.DS3GameFilePath = gameLoc;
-      gfi.DS3SaveGamePath = saveLoc;
+      sgp.DS3GameFilePath = gameLoc;
+      sgp.DS3SaveGamePath = saveLoc;
     }
   }
 
   public static void ClearList()
   {
-    gfi.siList.Clear();
+    siList.Clear();
   }
 
   public static void SetRestoredFileComments(string srcName, string destName)
@@ -98,7 +105,7 @@ public class CListHandler
     MessageBox.Show(restoredComments);
 
     int idx = 0;
-    foreach (SaveInformation si in gfi.siList)
+    foreach (SaveInformation si in siList)
     {
       if (si.filename.ToUpper() == destName.ToUpper())
       {
@@ -109,53 +116,85 @@ public class CListHandler
     }
   }
 
-  public static void Save()
+  //////////////////////////////////
+  public static void InitSaveGamePaths()
   {
-    XmlSerializer xmlFmt = new XmlSerializer(typeof(GameFileInfo), new Type[] { typeof(GameFileInfo) });
-    using (Stream f = new FileStream(datFile, FileMode.Create, FileAccess.Write, FileShare.None))
+    sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
+    sgp.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
+
+    sgp.DS2GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsII\\";
+    sgp.DS2SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsII\\Backup Saves";
+
+    sgp.DS3GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsIII\\";
+    sgp.DS3SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsIII\\Backup Saves";
+
+    sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
+    sgp.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
+
+    sgp.DS2GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsII\\";
+    sgp.DS2SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsII\\Backup Saves";
+
+    sgp.DS3GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsIII\\";
+    sgp.DS3SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsIII\\Backup Saves";
+  }
+
+  public static void ReadSaveGamePaths()
+  {
+    BinaryFormatter bf = new BinaryFormatter();
+    try
     {
-      xmlFmt.Serialize(f, gfi);
+      XmlSerializer xmlFmt = new XmlSerializer(typeof(SaveGamePaths), new Type[] { typeof(SaveGamePaths) });
+
+      if (System.IO.File.Exists("SaveGamePaths.xml"))
+      {
+        using (Stream f = File.OpenRead("SaveGamePaths.xml"))
+        {
+          sgp = (SaveGamePaths)xmlFmt.Deserialize(f);
+        }
+      }
+      else
+      {
+        InitSaveGamePaths();
+        UpdateSaveGamePaths();
+      }
+    }
+    catch(Exception e)
+    {
+      MessageBox.Show("Error opening SaveGamePaths.xml:\n" + e.Message + "\n" + e.InnerException.Message.ToString());
     }
   }
 
-  public static void LoadGameFileInfo()
+  public static void UpdateSaveGamePaths()
   {
-    try 
+    XmlSerializer xmlFmt = new XmlSerializer(typeof(SaveGamePaths), new Type[] { typeof(SaveGamePaths) });
+
+    using (Stream f = new FileStream("SaveGamePaths.xml", FileMode.Create, FileAccess.Write, FileShare.None))
     {
-      Load();
-    }
-    catch (Exception e)
-    {
-      MessageBox.Show("Initialization error: \n" + e.Message + "\n" + e.InnerException.Message.ToString());
+      xmlFmt.Serialize(f, sgp);
     }
   }
+
+  /////////////////////////////////
 
   public static void GottaStartSomewhere()
   {
-    gfi.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
-    gfi.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
+    InitSaveGamePaths();
 
-    gfi.DS2GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsII\\";
-    gfi.DS2SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsII\\Backup Saves";
-
-    gfi.DS3GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsIII\\";
-    gfi.DS3SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsIII\\Backup Saves";
-
-    gfi.siList = new List<SaveInformation>();
+    siList = new List<SaveInformation>();
 
     string savefilePath = "";
 
     if (currentGame == "Dark Souls I")
     {
-      savefilePath = gfi.DS1SaveGamePath;
+      savefilePath = sgp.DS1SaveGamePath;
     }
     if (currentGame == "Dark Souls II")
     {
-      savefilePath = gfi.DS2SaveGamePath;
+      savefilePath = sgp.DS2SaveGamePath;
     }
     if (currentGame == "Dark Souls III")
     {
-      savefilePath = gfi.DS2SaveGamePath;
+      savefilePath = sgp.DS2SaveGamePath;
     }
 
     if (!System.IO.Directory.Exists(savefilePath))
@@ -174,15 +213,40 @@ public class CListHandler
   }
 
 
+  public static void LoadGameFileInfo()
+  {
+    try
+    {
+      Load();
+    }
+    catch (Exception e)
+    {
+      MessageBox.Show("Initialization error: \n" + e.Message + "\n" + e.InnerException.Message.ToString());
+    }
+  }
+
+  public static void Save()
+  {
+    string fullPath = activeSaveLoc + "\\" + datFile;
+    XmlSerializer xmlFmt = new XmlSerializer(typeof(List<SaveInformation>), new Type[] { typeof(List<SaveInformation>) });
+
+    using (Stream f = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+      xmlFmt.Serialize(f, siList);
+    }
+  }
+
   public static void Load()
   {
     BinaryFormatter bf = new BinaryFormatter();
     try
     {
-      XmlSerializer xmlFmt = new XmlSerializer(typeof(GameFileInfo), new Type[] { typeof(GameFileInfo) });
-      using (Stream f = File.OpenRead(datFile))
+      string fullPath = activeSaveLoc + "\\" + datFile;
+      XmlSerializer xmlFmt = new XmlSerializer(typeof(List<SaveInformation>), new Type[] { typeof(List<SaveInformation>) });
+
+      using (Stream f = File.OpenRead(fullPath))
       {
-        gfi = (GameFileInfo)xmlFmt.Deserialize(f);
+        siList = (List<SaveInformation>)xmlFmt.Deserialize(f);
       }
     }
     catch
@@ -197,7 +261,7 @@ public class CListHandler
     siNotFound.filename = fname;
     siNotFound.comments = "Not Set";
 
-    foreach (SaveInformation si in gfi.siList)
+    foreach (SaveInformation si in siList)
     {
       if (fname.ToUpper() == si.filename.ToUpper())
         return si;
@@ -208,17 +272,17 @@ public class CListHandler
   public static void Replace(string fname, string comments)
   {
     int idx = 0;
-    foreach (SaveInformation si in gfi.siList)
+    foreach (SaveInformation si in siList)
     {
       if (si.filename.ToUpper() == fname.ToUpper())
       {
-        gfi.siList.RemoveAt(idx);
+        siList.RemoveAt(idx);
 
         SaveInformation siNew = new SaveInformation();
 
         siNew.filename = fname;
         siNew.comments = comments;
-        gfi.siList.Add(siNew);
+        siList.Add(siNew);
         return;
       }
       idx++;
@@ -228,7 +292,7 @@ public class CListHandler
     siReallyNew.comments = comments;
     siReallyNew.filename = fname;
 
-    gfi.siList.Add(siReallyNew);
+    siList.Add(siReallyNew);
   }
 
   public static bool CheckExist(string FileName_From_siList, List<string> FileName_From_Folder)
@@ -267,7 +331,7 @@ public class CListHandler
 
     String noLongerExists = "";
 
-    foreach (SaveInformation si in gfi.siList)
+    foreach (SaveInformation si in siList)
     {
       if (!CheckExist(si.filename, FileNameList))
       {
@@ -284,8 +348,8 @@ public class CListHandler
 
     if (noLongerExists.Length > 0)
     {
-      String m = "The following files were not found in the save file folder:\n" + noLongerExists + "Remove them from the information list?";
-      m += "\nNote - pressing ACCEPT will NOT delete any files.  \nIt only updates the list of backup files that is stored internally)";
+      //String m = "The following files were not found in the save file folder:\n" + noLongerExists + "Remove them from the information list?";
+      //m += "\nNote - pressing ACCEPT will NOT delete any files.  \nIt only updates the list of backup files that is stored internally)";
       ObsoleteListItemsDlg dlg = new ObsoleteListItemsDlg();
 
       ListBox lb;
@@ -295,11 +359,11 @@ public class CListHandler
         {
           lb = (ListBox)control;
 
-          for (int i = gfi.siList.Count - 1; i >= 0; i--)
+          for (int i = siList.Count - 1; i >= 0; i--)
           {
-            if (gfi.siList.ElementAt(i).comments == "NOLONGEREXISTS")
+            if (siList.ElementAt(i).comments == "NOLONGEREXISTS")
             {
-              lb.Items.Add(gfi.siList.ElementAt(i).filename);
+              lb.Items.Add(siList.ElementAt(i).filename);
             }
           }
         }
@@ -308,11 +372,11 @@ public class CListHandler
       DialogResult o = dlg.ShowDialog();
       if (o == DialogResult.OK)
       {
-        for (int i = gfi.siList.Count - 1; i >= 0; i--)
+        for (int i = siList.Count - 1; i >= 0; i--)
         {
-          if (gfi.siList.ElementAt(i).comments == "NOLONGEREXISTS")
+          if (siList.ElementAt(i).comments == "NOLONGEREXISTS")
           {
-            gfi.siList.RemoveAt(i);
+            siList.RemoveAt(i);
           }
         }
 
