@@ -12,11 +12,20 @@ namespace SaveGameFiles
 {
   public partial class Form1 : Form
   {
+    public static String strGameDS1 = "Dark Souls I";
+    public static String strGameDS2 = "Dark Souls II";
+    public static String strGameDS3 = "Dark Souls III";
+    public static String strGameGoaT = "Ghost of a Tale";
+
     string SourceSaves = "";
     string BackupSaves = "";
 
     string DarkSoulsSaveFile = "";
     public string selectedFile = "";
+
+    // Ghost of a Tale
+    string GoaTSaveFile = "_PlaceHolder_";
+
 
     string currentDocuments = Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents");
     string currentUserName = Environment.UserName;
@@ -29,6 +38,7 @@ namespace SaveGameFiles
       CListHandler.Initialize(currentDocuments, currentUserName);
 
       CListHandler.ReadSaveGamePaths();
+
 
       InitializeByGame(CListHandler.currentGame);
 
@@ -52,6 +62,10 @@ namespace SaveGameFiles
       {
         return CListHandler.sgp.DS3GameFilePath;
       }
+      if (comboSelectedGame.Text == "Ghost of a Tale")
+      {
+        return CListHandler.sgp.GoaTGameFilePath;
+      }
       return "";
     }
 
@@ -68,6 +82,10 @@ namespace SaveGameFiles
       if (comboSelectedGame.Text == "Dark Souls III")
       {
         return CListHandler.sgp.DS3SaveGamePath;
+      }
+      if (comboSelectedGame.Text == "Ghost of a Tale")
+      {
+        return CListHandler.sgp.GoaTSaveGamePath;
       }
       return "";
     }
@@ -100,6 +118,10 @@ namespace SaveGameFiles
         {
           CListHandler.sgp.DS3GameFilePath = gameFolder;
         }
+        if (comboSelectedGame.Text == "Ghost of a Tale")
+        {
+          CListHandler.sgp.GoaTGameFilePath = gameFolder;
+        }
 
         txtSourceFolder.Text = gameFolder;
       }
@@ -124,6 +146,10 @@ namespace SaveGameFiles
         if (comboSelectedGame.Text == "Dark Souls III")
         {
           CListHandler.sgp.DS3SaveGamePath = d.SelectedPath;
+        }
+        if (comboSelectedGame.Text == "Ghost of a Tale")
+        {
+          CListHandler.sgp.GoaTSaveGamePath = d.SelectedPath;
         }
         CListHandler.UpdateSaveGamePaths();
 
@@ -294,6 +320,12 @@ namespace SaveGameFiles
           if (copyFile)
           {
             File.Copy(sourceFull, destFull, true);
+            if (CListHandler.currentGame == "Ghost of a Tale")
+            {
+              sourceFull = sourceFull.Replace(".save", ".png");
+              destFull += ".png";
+              File.Copy(sourceFull, destFull, true);
+            }
 
             if (radioRestore.Checked == true)
             {
@@ -373,7 +405,8 @@ namespace SaveGameFiles
       {
         SourceSaves = CListHandler.sgp.DS2GameFilePath;
         BackupSaves = CListHandler.sgp.DS2SaveGamePath;
-        DarkSoulsSaveFile = "DARKSII0000.sl2";
+        //DarkSoulsSaveFile = "DARKSII0000.sl2";
+        DarkSoulsSaveFile = "DS2SOFS0000.sl2";
 
         if (!System.IO.File.Exists(SourceSaves + "\\" + DarkSoulsSaveFile))
         {
@@ -393,15 +426,41 @@ namespace SaveGameFiles
         BackupSaves = CListHandler.sgp.DS3SaveGamePath;
         DarkSoulsSaveFile = "DS30000.sl2";
 
+
         if (!System.IO.File.Exists(SourceSaves + "\\" + DarkSoulsSaveFile))
         {
-          System.IO.DirectoryInfo root = new System.IO.DirectoryInfo(SourceSaves);
-          System.IO.DirectoryInfo[] subDir1 = root.GetDirectories();
-          SourceSaves += subDir1[0].Name;
+          try
+          {
+            System.IO.DirectoryInfo root = new System.IO.DirectoryInfo(SourceSaves);
+            System.IO.DirectoryInfo[] subDir1 = root.GetDirectories();
+            SourceSaves += subDir1[0].Name;
+          }
+          catch (Exception e)
+          {
+            MessageBox.Show(e.Message);
+          }
         }
 
         CListHandler.sgp.DS3GameFilePath = SourceSaves;
         CListHandler.SetDatFile("_DARKSOULSIII_GameFileInfo.xml");
+      }
+
+
+
+      if (currentGame == "Ghost of a Tale")
+      {
+        SourceSaves = CListHandler.sgp.GoaTGameFilePath;
+        BackupSaves = CListHandler.sgp.GoaTSaveGamePath;
+        GoaTSaveFile = "Save 000";
+
+        //if (!System.IO.File.Exists(SourceSaves + "\\" + GoaTSaveFile))
+        //{
+        //  System.IO.DirectoryInfo root = new System.IO.DirectoryInfo(SourceSaves);
+        //  System.IO.DirectoryInfo[] subDir1 = root.GetDirectories();
+        //  SourceSaves += subDir1[0].Name;
+        //}
+
+        CListHandler.SetDatFile("_GhostOfaTale_GameFileInfo.xml");
       }
 
       CListHandler.currentGame = currentGame;
@@ -439,6 +498,10 @@ namespace SaveGameFiles
       if (currentGame == "Dark Souls III")
       {
         return "_DARKSOULSIII_GameFileInfo.xml";
+      }
+      if (currentGame == "Ghost of a Tale")
+      {
+        return "_GhostOfaTale_GameFileInfo.xml";
       }
       return "";
     }

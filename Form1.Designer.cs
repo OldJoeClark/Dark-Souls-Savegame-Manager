@@ -262,7 +262,8 @@
       this.comboSelectedGame.Items.AddRange(new object[] {
             "Dark Souls I",
             "Dark Souls II",
-            "Dark Souls III"});
+            "Dark Souls III",
+            "Ghost of a Tale"});
       this.comboSelectedGame.Location = new System.Drawing.Point(466, 14);
       this.comboSelectedGame.Name = "comboSelectedGame";
       this.comboSelectedGame.Size = new System.Drawing.Size(134, 21);

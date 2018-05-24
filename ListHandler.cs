@@ -10,6 +10,11 @@ using SaveGameFiles;
 
 public class CListHandler
 {
+  public static String strGameDS1  = "Dark Souls I";
+  public static String strGameDS2  = "Dark Souls II";
+  public static String strGameDS3  = "Dark Souls III";
+  public static String strGameGoaT = "Ghost of a Tale";
+  
   public static string currentGame;
   public static string activeSaveLoc = "Not Set";
 
@@ -34,6 +39,9 @@ public class CListHandler
 
     public string DS3GameFilePath = "";
     public string DS3SaveGamePath = "";
+
+    public string GoaTGameFilePath = "";
+    public string GoaTSaveGamePath = "";
   }
 
   public static SaveGamePaths sgp = new SaveGamePaths();
@@ -46,6 +54,7 @@ public class CListHandler
   {
     currentDocuments = docsPath;
     currentUserName = user;
+    InitSaveGamePaths();
   }
 
   public static void SetActiveSaveLocation(string s)
@@ -77,20 +86,26 @@ public class CListHandler
 
   public static void SetGameData(string game, string gameLoc, string saveLoc)
   {
-    if (game == "Dark Souls I")
+    // Add new games here
+    if (game == strGameDS1)
     {
       sgp.DS1GameFilePath = gameLoc;
       sgp.DS1SaveGamePath = saveLoc;
     }
-    if (game == "Dark Souls II")
+    if (game == strGameDS2)
     {
       sgp.DS2GameFilePath = gameLoc;
       sgp.DS2SaveGamePath = saveLoc;
     }
-    if (game == "Dark Souls III")
+    if (game == strGameDS3)
     {
       sgp.DS3GameFilePath = gameLoc;
       sgp.DS3SaveGamePath = saveLoc;
+    }
+    if (game == strGameGoaT)
+    {
+      sgp.GoaTGameFilePath = gameLoc;
+      sgp.GoaTSaveGamePath = saveLoc;
     }
   }
 
@@ -119,6 +134,17 @@ public class CListHandler
   //////////////////////////////////
   public static void InitSaveGamePaths()
   {
+    //sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
+    //sgp.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
+
+    //sgp.DS2GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsII\\";
+    //sgp.DS2SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsII\\Backup Saves";
+
+    //sgp.DS3GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsIII\\";
+    //sgp.DS3SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsIII\\Backup Saves";
+
+
+    // Add new games here
     sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
     sgp.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
 
@@ -128,14 +154,8 @@ public class CListHandler
     sgp.DS3GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsIII\\";
     sgp.DS3SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsIII\\Backup Saves";
 
-    sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
-    sgp.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
-
-    sgp.DS2GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsII\\";
-    sgp.DS2SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsII\\Backup Saves";
-
-    sgp.DS3GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsIII\\";
-    sgp.DS3SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsIII\\Backup Saves";
+    sgp.GoaTGameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\My Games\\Ghost of a Tale\\";
+    sgp.GoaTSaveGamePath = currentDocuments + "\\_SaveGameFiles\\Ghost of a Tale\\Backup Saves";
   }
 
   public static void ReadSaveGamePaths()
@@ -184,17 +204,22 @@ public class CListHandler
 
     string savefilePath = "";
 
-    if (currentGame == "Dark Souls I")
+    // Add new games here
+    if (currentGame == strGameDS1)
     {
       savefilePath = sgp.DS1SaveGamePath;
     }
-    if (currentGame == "Dark Souls II")
+    if (currentGame == strGameDS2)
     {
       savefilePath = sgp.DS2SaveGamePath;
     }
-    if (currentGame == "Dark Souls III")
+    if (currentGame == strGameDS3)
     {
       savefilePath = sgp.DS2SaveGamePath;
+    }
+    if (currentGame == strGameGoaT)
+    {
+      savefilePath = sgp.GoaTSaveGamePath;
     }
 
     if (!System.IO.Directory.Exists(savefilePath))
