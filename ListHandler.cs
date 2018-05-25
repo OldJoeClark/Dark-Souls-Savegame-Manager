@@ -145,7 +145,7 @@ public class CListHandler
 
 
     // Add new games here
-    sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DarkSouls";
+    sgp.DS1GameFilePath = "C:\\Users\\" + currentUserName + "\\Documents\\NBGI\\DARK SOULS REMASTERED\\61431814";
     sgp.DS1SaveGamePath = currentDocuments + "\\_SaveGameFiles\\Dark SoulsI\\Backup Saves";
 
     sgp.DS2GameFilePath = "C:\\Users\\" + currentUserName + "\\AppData\\Roaming\\DarkSoulsII\\";

@@ -106,7 +106,7 @@ namespace SaveGameFiles
 
         txtSourceFile.Text = fullPath.Substring(lastSlash + 1);
 
-        if (comboSelectedGame.Text == "Dark Souls")
+        if (comboSelectedGame.Text == "Dark Souls I")
         {
           CListHandler.sgp.DS1GameFilePath = gameFolder;
         }
@@ -135,7 +135,7 @@ namespace SaveGameFiles
       DialogResult r = d.ShowDialog();
       if (r == DialogResult.OK)
       {
-        if (comboSelectedGame.Text == "Dark Souls")
+        if (comboSelectedGame.Text == "Dark Souls I")
         {
           CListHandler.sgp.DS1SaveGamePath = d.SelectedPath;
         }
